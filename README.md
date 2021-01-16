@@ -1,6 +1,6 @@
 # DTC MERN EXAM
 
-### Simple CRUD application, for book authors to register and add their published books to the database using MERN stack .
+### Simple CRUD application, for book readers to register and add their favourite books to the database using MERN stack .
 
 ## Installation
 
