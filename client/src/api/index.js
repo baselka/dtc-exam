@@ -108,6 +108,7 @@ const Book = {
     addBook: (data) => requests.post('/add-book/', data),
     editBook: (data) => requests.post('/edit-book/', data),
     deleteBook: (data) => requests.post('/delete-book/', data),
+    searchBook: (data) => requests.get(`/search/${data.title}`, data),
     
 }
 

@@ -1,16 +1,17 @@
-const User = require('../DBSchema/User')
+const Book = require('../DBSchema/Book')
 
-exports.addNewBook = (uid, title, pages, category, result) => { 
+exports.addNewBook = (user, title, pages, category, result) => { 
   
-  const data = {
+  const data = new Book({
    
       title: title,
       pages: pages,
-      category: category
+      category: category,
+      added_by: user
 
-  }
+  })
 
-  User.findByIdAndUpdate(uid,{$push: {my_books: data}}, {upsert: true}, function (err, res) {
+  data.save( function (err, res) {
     if(err){
       return result(null, err)
     }
@@ -20,62 +21,58 @@ exports.addNewBook = (uid, title, pages, category, result) => {
        
 }
 
-exports.getBooks = async (uid, page, pageSize, result) => { 
+exports.getBooks = async (page, pageSize, result) => { 
+  const count = await Book.countDocuments()
+console.log(count)
+  Book.find().sort({_id:-1}).limit(pageSize * 1).skip((page - 1) * pageSize).exec().then(res => {
+          result(null,{
+              totalPages: Math.ceil(count / pageSize),
+              currentPage: page,
+              statusCode: 200,
+              books:res,
+          })
+      })
+      .catch(error => {
+          return result(null, error)
+      })
 
-  console.log('Pagination', )
-  User.findById(uid, 'my_books', {sort:{my_books: -1}/* limit: pageSize * 1, skip:((page -1) * pageSize) */}, function (err, res) {
+}
+exports.searchBook = async (title, page, pageSize, result) => { 
+  const count = await Book.countDocuments()
+console.log(count)
+  Book.find({title: title}).sort({_id:-1}).limit(pageSize * 1).skip((page - 1) * pageSize).exec().then(res => {
+          result(null,{
+              totalPages: Math.ceil(count / pageSize),
+              currentPage: page,
+              statusCode: 200,
+              books:res,
+          })
+      }).catch(error => {
+        console.log(error)
+           //result(null, error)
+      })
+
+}
+
+exports.editBook = (user, bookId,  title, pages, category, result) => { 
+ 
+
+  Book.findByIdAndUpdate(bookId,{title: title, pages: pages, category: category, modified_by: user}, function (err, res) {
     if(err){
       return result(null, err)
     }
     result(null, res)
   })
 
+       
 }
 
-exports.editBook = (uid, bookId,  title, pages, category, result) => { 
+exports.deleteBook = (bookId, result) => { 
   
-  const data = {
-   
-      title: title,
-      pages: pages,
-      category: category
-
-  }
-  console.log(bookId)
-
-  User.f(uid,{$push: {my_books: data}}, {upsert: true}, function (err, res) {
+  Book.findByIdAndDelete(bookId, function (err, res) {
     if(err){
       return result(null, err)
     }
-    result(null, res)
-  })
-
-       
-}
-
-exports.searchBook = (uid, title, result) => { 
-  console.log('QUERY', title)
-  User.findOne(
-    {my_books:{ "title": "One More Book", "pages": 100, "category": "Fitness" }},
-    function(err, res) {
-      if (err) {
-        result(null, err)
-      } else {
-       console.log(res)
-      }
-    }
-  );
-       
-}
-
-exports.deleteBook = (uid, bookId, result) => { 
-  
-
-  User.findByIdAndDelete(uid, 'my_books', function (err, res) {
-    if(err){
-      return result(null, err)
-    }
-    console.log(res)
     result(null, res)
   })
 

@@ -2,22 +2,6 @@ const mongoose = require('mongoose')
 const Schema = mongoose.Schema;
 
 
-
-// bookSchema
-
-const BookSchema = new Schema({
-    title: {
-        type: String,
-    },
-    pages: {
-        type: Number,
-    },
-    category: {
-        type: String
-    }
-
-})
-
 const UserSchema = new Schema({
     name: {
         type: String,
@@ -36,8 +20,7 @@ const UserSchema = new Schema({
     date: {
         type: Date,
         default: Date.now
-    },
-    my_books: [BookSchema]
+    }
 })
 
 

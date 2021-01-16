@@ -23,8 +23,8 @@ const EditBook = (props) => {
         console.log(res)
         if (res.error) {
 
-
-        } else if (res.statusCode === 201) {
+            setError(res.data.message)
+        } else if (res.statusCode === 200) {
             props.editStatus(true)
         }
         setLoading(false)

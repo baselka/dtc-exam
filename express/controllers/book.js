@@ -1,7 +1,8 @@
 const Book = require('../models/bookModel.js')
 const userId = require('../utils/jwt')
+
 exports.addNewBook = (req, res) => {
-    const uid = req.user.data
+    const user = req.user.data.name
     const {title, pages, category } = req.body;
     if (  title == null  || title.length < 1  || pages == null   || category == null  || pages.length < 1  || category.length < 1 ) {
            res.status(400).send({
@@ -11,7 +12,7 @@ exports.addNewBook = (req, res) => {
            });
        }else {
           
-           Book.addNewBook(uid, title, pages, category, (err,data) => {
+           Book.addNewBook(user, title, pages, category, (err,data) => {
                if(err) {
                    res.status(500).send({
                        message: err.message || "Internal Server Error. Please try again"
@@ -31,10 +32,9 @@ exports.addNewBook = (req, res) => {
 }
 
 exports.getBooks = (req, res) => {
-    const uid = req.user.data
-    const {page, pageSize} = req.params;
-          console.log('PAGINATION', pageSize)
-           Book.getBooks(uid, page, pageSize, (err,data) => {
+    const { page = 1, pageSize = 10 } = req.params;
+    const pageInt = parseInt(page)+1
+           Book.getBooks(pageInt, pageSize, (err,data) => {
                if(err) {
                    res.status(500).send({
                        message: err.message || "Internal Server Error. Please try again"
@@ -45,14 +45,15 @@ exports.getBooks = (req, res) => {
                        res.status(200).send({
                            statusName: 'Ok',
                            statusCode: 200,
-                           data : data
+                           data: data
                        });
                    }
            })   
 }
 
 exports.editBook = (req, res) => {
-    const uid = req.user.data
+    const user = req.user.data.name
+    console.log(user)
     const {book_id, title, pages, category } = req.body;
     if (  title == null  || title.length < 1  || pages == null   || category == null  || pages.length < 1  || category.length < 1 ) {
            res.status(400).send({
@@ -62,7 +63,7 @@ exports.editBook = (req, res) => {
            });
        }else {
           
-           Book.editBook(uid, book_id, title, pages, category, (err,data) => {
+           Book.editBook(user, book_id, title, pages, category, (err,data) => {
                if(err) {
                    res.status(500).send({
                        message: err.message || "Internal Server Error. Please try again"
@@ -82,9 +83,8 @@ exports.editBook = (req, res) => {
 }
 
 exports.searchBook = (req, res) => {
-    const uid = req.user.data
-    const {title} = req.params;
-           Book.searchBook(uid, title, (err,data) => {
+    const {title, page = 1, pageSize = 10 } = req.params;
+           Book.searchBook(title, page, pageSize, (err,data) => {
                if(err) {
                    res.status(500).send({
                        message: err.message || "Internal Server Error. Please try again"
@@ -102,10 +102,8 @@ exports.searchBook = (req, res) => {
 }
 
 exports.deleteBook = (req, res) => {
-    console.log(req.body)
-    const uid = req.user.data
     const {book_id} = req.body;
-           Book.deleteBook(uid, book_id, (err,data) => {
+           Book.deleteBook(book_id, (err,data) => {
                if(err) {
                    res.status(500).send({
                        message: err.message || "Internal Server Error. Please try again"
@@ -116,7 +114,9 @@ exports.deleteBook = (req, res) => {
                        res.status(200).send({
                            statusName: 'Ok',
                            statusCode: 200,
-                           data : data
+                           data : {
+                               message: 'Successfully Deleted'
+                           }
                        });
                    }
            })   

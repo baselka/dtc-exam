@@ -68,7 +68,7 @@ exports.login = (req, res) => {
             }
             
             
-                const token = JWT.signUser(data._id)
+                const token = JWT.signUser(data)
               
                 res.status(200).send({
                     statusName: 'Ok',
